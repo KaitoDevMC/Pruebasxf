@@ -21,7 +21,8 @@ jobs:
             libtool \
             pkg-config \
             curl \
-            unzip
+            unzip \
+            git
 
       - name: Setup Android NDK
         uses: nttld/setup-ndk@v1
@@ -33,10 +34,10 @@ jobs:
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
         run: |
           chmod +x build-android.sh
-          build-android.sh
+          ./build-android.sh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: php-8.0.28-android-arm64
-          path: php-8.0.28/php-8.0.28-android-arm64.tar.gz
+          path: output/php-8.0.28-android-arm64.tar.gz

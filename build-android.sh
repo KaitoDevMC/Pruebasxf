@@ -13,14 +13,21 @@ NDK="$ANDROID_NDK_HOME"
 TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/linux-x86_64"
 SYSROOT="$TOOLCHAIN/sysroot"
 
-export CC="$TOOLCHAIN/bin/${ARCH}-linux-android${ANDROID_API}-clang"
-export CXX="$TOOLCHAIN/bin/${ARCH}-linux-android${ANDROID_API}-clang++"
-export AR="$TOOLCHAIN/bin/llvm-ar"
-export LD="$TOOLCHAIN/bin/ld"
-export STRIP="$TOOLCHAIN/bin/llvm-strip"
+export PATH="$TOOLCHAIN/bin:$PATH"
 
-export CFLAGS="--sysroot=$SYSROOT -O2 -fPIC"
-export LDFLAGS="--sysroot=$SYSROOT"
+export CC="clang"
+export CXX="clang++"
+export AR="llvm-ar"
+export LD="ld.lld"
+export STRIP="llvm-strip"
+
+export CFLAGS="--target=${ARCH}-linux-android${ANDROID_API} --sysroot=$SYSROOT -O2 -fPIC"
+export CXXFLAGS="$CFLAGS"
+export LDFLAGS="--target=${ARCH}-linux-android${ANDROID_API} --sysroot=$SYSROOT"
+
+export PKG_CONFIG=pkg-config
+export PKG_CONFIG_LIBDIR="$SYSROOT/usr/lib/pkgconfig"
+export PKG_CONFIG_SYSROOT_DIR="$SYSROOT"
 
 rm -rf "$BUILD_DIR" "$OUTPUT_DIR"
 mkdir -p "$BUILD_DIR" "$OUTPUT_DIR"
@@ -34,6 +41,7 @@ cd php-${PHP_VERSION}
 echo "⚙️ Configurando PHP para Android ARM64"
 
 ./configure \
+  --build=x86_64-linux-gnu \
   --host=${ARCH}-linux-android \
   --prefix=/php \
   --enable-cli \
@@ -54,7 +62,8 @@ echo "⚙️ Configurando PHP para Android ARM64"
   --with-sqlite3 \
   --enable-opcache \
   --disable-opcache-jit \
-  --without-pear
+  --without-pear \
+  --with-sysroot="$SYSROOT"
 
 echo "🔨 Compilando"
 make -j$(nproc)
@@ -65,5 +74,5 @@ make install DESTDIR="$OUTPUT_DIR/rootfs"
 cd "$OUTPUT_DIR/rootfs"
 tar -czf "$OUTPUT_DIR/php-${PHP_VERSION}-android-arm64.tar.gz" php
 
-echo "✅ Listo"
+echo "✅ BUILD COMPLETADO"
 echo "📦 output/php-${PHP_VERSION}-android-arm64.tar.gz"

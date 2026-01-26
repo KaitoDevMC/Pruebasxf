@@ -32,8 +32,8 @@ jobs:
         env:
           ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
         run: |
-          chmod +x scripts/build-android.sh
-          scripts/build-android.sh
+          chmod +x build-android.sh
+          build-android.sh
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

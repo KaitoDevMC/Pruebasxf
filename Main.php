@@ -343,7 +343,7 @@ class Main extends PluginBase implements Listener {
                 }
             }
         }catch(\Throwable $e){
-            // si todo falla, no hacemos nada
+            // si todo falla no hay nada que podamos hacer 😔, pero arreglarlo si xD
         }
     }
 }

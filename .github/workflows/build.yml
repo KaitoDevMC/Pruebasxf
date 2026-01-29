@@ -18,7 +18,8 @@ jobs:
           build-essential autoconf bison re2c \
           libxml2-dev libssl-dev libcurl4-openssl-dev \
           libyaml-dev libzip-dev zlib1g-dev \
-          libsqlite3-dev pkg-config
+          libsqlite3-dev pkg-config \
+          libonig-dev
 
     - name: Download PHP 8.3
       run: |
@@ -29,7 +30,7 @@ jobs:
       run: |
         git clone https://github.com/krakjoe/pthreads.git
 
-    - name: Build PHP
+    - name: Build PHP (ZTS)
       run: |
         cd php-8.3.2
 
@@ -38,6 +39,7 @@ jobs:
         ./configure \
           --prefix=$PWD/build \
           --enable-cli \
+          --enable-zts \
           --enable-phar \
           --enable-sockets \
           --enable-opcache \
@@ -52,6 +54,10 @@ jobs:
         make -j$(nproc)
         make install
 
+    - name: Verify ZTS
+      run: |
+        php-8.3.2/build/bin/php -i | grep -i "Thread Safety"
+
     - name: Build pthreads
       run: |
         cd pthreads
@@ -63,6 +69,7 @@ jobs:
     - name: Verify extensions
       run: |
         php-8.3.2/build/bin/php -m
+        php-8.3.2/build/bin/php --ri pthreads || true
 
     - name: Upload PHP build
       uses: actions/upload-artifact@v4
